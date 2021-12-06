@@ -38,6 +38,18 @@ app.get("/", async (req, res) => {
   }
 });
 
+app.get("/latest", async (req, res) =>{
+  try {
+    const result = await client.query(
+      'select * from pasties order by created_timestamp desc limit 10'
+    )
+    res.json(result.rows);
+    }
+    catch(error){
+      console.error(error)
+    }
+});
+
 app.get("/:id", async (req, res) => {
   try {
     const id = req.params.id
@@ -49,8 +61,21 @@ app.get("/:id", async (req, res) => {
     catch(error){
       console.error(error)
     }
-})
+});
 
+app.post("/", async (req, res) => {
+  try {
+    const {title, contents} = req.body
+    const id = req.params.id
+    const result = await client.query(
+      'insert into pasties (title, contents) values ($1, $2)', [title, contents]
+    )
+    res.json(result.rows);
+    }
+    catch(error){
+      console.error(error)
+    }
+});
 
 //Start the server on the given port
 const port = process.env.PORT;
