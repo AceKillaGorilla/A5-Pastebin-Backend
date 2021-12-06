@@ -38,6 +38,19 @@ app.get("/", async (req, res) => {
   }
 });
 
+app.get("/:id", async (req, res) => {
+  try {
+    const id = req.params.id
+    const result = await client.query(
+      'select * from pasties where id = $1', [id]
+    )
+    res.json(result.rows);
+    }
+    catch(error){
+      console.error(error)
+    }
+})
+
 
 //Start the server on the given port
 const port = process.env.PORT;
