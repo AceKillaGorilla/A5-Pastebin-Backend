@@ -4,7 +4,6 @@ import express from "express";
 import cors from "cors";
 
 config(); //Read .env file lines as though they were env vars.
-const connectToHeroku = process.env.NODE_ENV === 'production'
 
 //Call this script with the environment variable LOCAL set if you want to connect to a local db (i.e. without SSL)
 //Do not set the environment variable LOCAL if you want to connect to a heroku DB.
@@ -14,10 +13,9 @@ const connectToHeroku = process.env.NODE_ENV === 'production'
 // { rejectUnauthorized: false } - when connecting to a heroku DB
 const herokuSSLSetting = { rejectUnauthorized: false }
 const sslSetting = process.env.LOCAL ? false : herokuSSLSetting
-
 const dbConfig = {
   connectionString: process.env.DATABASE_URL,
-  ssl: connectToHeroku ? {rejectUnauthorized : false, } : false,
+  ssl: sslSetting,
 };
 
 const app = express();
@@ -26,14 +24,13 @@ app.use(express.json()); //add body parser to each following route handler
 app.use(cors()) //add CORS support to each following route handler
 
 const client = new Client(dbConfig);
+client.connect();
 
 app.get("/", async (req, res) => {
   try {
-    await client.connect();
   const result = await client.query(
     'select * from pasties'
   )
-  await client.end();
   res.json(result.rows);
   }
   catch(error){
