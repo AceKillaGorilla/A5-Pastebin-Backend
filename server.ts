@@ -4,6 +4,7 @@ import express from "express";
 import cors from "cors";
 
 config(); //Read .env file lines as though they were env vars.
+const connectToHeroku = process.env.NODE_ENV === 'production'
 
 //Call this script with the environment variable LOCAL set if you want to connect to a local db (i.e. without SSL)
 //Do not set the environment variable LOCAL if you want to connect to a heroku DB.
@@ -13,9 +14,10 @@ config(); //Read .env file lines as though they were env vars.
 // { rejectUnauthorized: false } - when connecting to a heroku DB
 const herokuSSLSetting = { rejectUnauthorized: false }
 const sslSetting = process.env.LOCAL ? false : herokuSSLSetting
+
 const dbConfig = {
   connectionString: process.env.DATABASE_URL,
-  ssl: sslSetting,
+  ssl: connectToHeroku ? {rejectUnauthorized : false, } : false,
 };
 
 const app = express();
